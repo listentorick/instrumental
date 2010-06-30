@@ -1,0 +1,6 @@
+[submodule "record/lib/express"]
+	path = record/lib/express
+	url = git://github.com/visionmedia/express.git
+[submodule "record/lib/node-mongodb-native"]
+	path = record/lib/node-mongodb-native
+	url = git://github.com/christkv/node-mongodb-native.git
