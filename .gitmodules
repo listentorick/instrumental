@@ -4,3 +4,12 @@
 [submodule "record/lib/node-mongodb-native"]
 	path = record/lib/node-mongodb-native
 	url = git://github.com/christkv/node-mongodb-native.git
+[submodule "lib/express"]
+	path = lib/express
+	url = http://github.com/visionmedia/express.git
+[submodule "lib/node-mongodb-native"]
+	path = lib/node-mongodb-native
+	url = http://github.com/christkv/node-mongodb-native.git
+[submodule "lib/node-websocket-server"]
+	path = lib/node-websocket-server
+	url = http://github.com/miksago/node-websocket-server.git

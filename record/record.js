@@ -8,7 +8,7 @@ var EventProvider = require('./eventProvider').EventProvider;
 var EventLogger = require('./eventLogger').EventLogger;
 
 Record = { 
-  httpRequestPlugins: []
+  plugins: {}
 }
 
 function configurePlugin(env, callback) {
@@ -28,11 +28,11 @@ function startRecord(rootDir, port, interface, databaseServer, databasePort) {
 	Record.eventLogger = eventLogger;
 	
 	//Initialise the plugins
-	var numPlugins = Record.httpRequestPlugins.length;
+	//var numPlugins = Record.plugins.length;
 	var plugin;
 	var config = {eventLogger:eventLogger};
-	for(var i=0;i<numPlugins;i++){
-		plugin = Record.httpRequestPlugins[i];
+	for(var prop in Record.plugins){
+		plugin = Record.plugins[prop];
 		Object.merge(plugin,context);
 	}
 	
@@ -56,36 +56,52 @@ function startRecord(rootDir, port, interface, databaseServer, databasePort) {
 	function errorHandler(error){
 		sys.p(error);
 	}
-  
+	
 	/*The initial script is grabbed here*/
 	get('/launcher', function() {
-
-		//iterate over all our plugins 
-		//var eventDateTime = new Date();
-		//var instrumentationId = 1;  //The id of the stats this data belonsg to.
-		//var vistorId;
-		//if(VisitorHelper.isUniqueVisit(this)) {
-	   //		visitorId = 1;
-		//} else {
-		//	visitorId = VisitorHelper.getVisitorId(this);
-		//}
-		//var numPlugins = Record.httpRequestPlugins.length;
-		//var plugin;
-		//var context;
-		//for(var i=0; i<numPlugins;i++) {
-		//	plugin = Record.httpRequestPlugins[i];
-		//	plugin.process(this,eventDateTime, instrumentationId, visitorId);
-		//}
-
-		this.render('record.html.ejs', {
-			layout:false,
-			locals: {}
-		})
-
+		var config = {};
+		config.path = set('root'); 		
+		this.sendfile("public/javascript/record.js", config, staticFileServed);
 	}); 
 	
-	get('/record', function() {
+	function eventLoggedCallback(error){
+	}
 	
+	function staticFileServed(error){
+	}
+
+	get('/record', function() {
+		//sys.p("recorded");
+		//sys.p(this.params);
+		var receivedDateTime = new Date();
+		
+		var payload = this.params.get;
+		var acc = payload.acc;
+		var uvid = payload.uvid;
+		var vid = payload.vid;
+		
+		var events = eval(payload.events);
+		var numEvents = events.length;
+		var event;
+		var eventCategory;
+		var eventCode;
+		var eventData;
+		var eventTimeStamp;
+		
+		//call plugins here (chain using callbacks to amend data if need be (i.e. resolve stuff with external sources such as twitter)
+		
+		for(var i=0; i<numEvents;i++){
+			event = events[i]; 
+			eventCategory = event.eventCategory;
+			eventCode = event.eventCode;
+			eventData = event.eventData;
+			eventTimeStamp = event.eventTimeStamp
+			//plugin = Record.plugins[eventCategory];
+			//Here we would modify data if need be using plugins. Currently cant see the point
+			Record.eventLogger.log(acc, uvid, vid, eventCategory, eventCode, eventData, eventTimeStamp, receivedDateTime, eventLoggedCallback);
+		}
+					
+		this.sendfile("public/images/record.gif", config, staticFileServed);
 	});
 
 	run(port, interface);
